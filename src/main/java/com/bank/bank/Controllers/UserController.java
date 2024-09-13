@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -28,4 +29,44 @@ public class UserController {
     public String deleteUser(@PathVariable String afm) {
         return userService.deleteUser(afm);
     }
+
+    @PutMapping("/{afm}/createAccount")
+    public String createAccount(@PathVariable String afm){
+        return userService.createAccount(afm);
+    }
+
+    @PutMapping("/{afm}/deleteAccount")
+    public String deleteAccount(@PathVariable String afm){
+        return userService.deleteAccount(afm);
+    }
+
+    @PostMapping("/{afm}/getLoan/{amount}")
+    public String getLoan(@PathVariable String afm,@PathVariable BigDecimal amount){
+        return userService.getLoan(afm,amount);
+    }
+
+    @PostMapping("/{afm}/payLoan/{amount}")
+    public String payLoan(@PathVariable String afm,@PathVariable BigDecimal amount){
+        return userService.payLoan(afm,amount);
+    }
+
+    @PostMapping("/{afm}/deposit/{amount}")
+    public String deposit(@PathVariable String afm,@PathVariable BigDecimal amount){
+        return userService.deposit(afm,amount);
+    }
+
+    @PostMapping("/{afm}/withdraw/{amount}")
+    public String withdraw(@PathVariable String afm,@PathVariable BigDecimal amount){
+        return userService.withdraw(afm,amount);
+    }
+
+    @GetMapping("/{afm}/savings")
+    public String getSavings(@PathVariable String afm){
+        return userService.getSavings(afm);
+    }
+    @GetMapping("/{afm}/debt")
+    public String getDebt(@PathVariable String afm){
+        return userService.getDebt(afm);
+    }
+
 }

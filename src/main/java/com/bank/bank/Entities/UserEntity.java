@@ -1,15 +1,14 @@
 package com.bank.bank.Entities;
 
 import com.bank.bank.Enums.UserType;
-import jakarta.annotation.Nonnull;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.lang.NonNull;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Date;
 
 
 @Entity
@@ -17,12 +16,13 @@ public class UserEntity {
 
     @Id
     @NotBlank(message = "AFM must not be blank")
+    @Pattern(regexp = "\\d+", message = "AFM must contain only numbers")
     @Column(name = "afm", unique = true, nullable = false)
     private String afm;
-    @NotBlank
+    @NotBlank(message = "Firstname must not be blank")
     @NotNull(message = "Firstname must not be null")
     private String firstName;
-    @NotBlank
+    @NotBlank(message = "Lastname must not be null")
     @NotNull(message = "Lastname must not be null")
     private String lastName;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -30,8 +30,13 @@ public class UserEntity {
     @NotNull(message = "User type must not be null")
     @Enumerated(EnumType.STRING)
     private UserType userType;
+    @Column(nullable = false)
     @NotNull(message = "Has_account must not be null")
     private boolean has_account;
+    @Column(columnDefinition = "DECIMAL(19, 2) DEFAULT 0.00")
+    private BigDecimal loanDebt=BigDecimal.ZERO;
+    @Column(columnDefinition = "DECIMAL(19, 2) DEFAULT 0.00")
+    private BigDecimal moneyDeposited=BigDecimal.ZERO;
 
 
     public UserEntity() {
@@ -44,6 +49,7 @@ public class UserEntity {
         this.birthDate = birthDate;
         this.userType = userType;
         this.has_account = has_account;
+
     }
 
     // Getters and setters
@@ -102,7 +108,19 @@ public class UserEntity {
         return has_account;
     }
 
-    public void setHas_account( @NotNull(message = "Has_account must not be null") Boolean has_account) {
-        this.has_account = has_account;
+    public BigDecimal getLoanDebt() {
+        return loanDebt;
+    }
+
+    public void setLoanDebt(BigDecimal loanDebt) {
+        this.loanDebt = loanDebt;
+    }
+
+    public BigDecimal getMoneyDeposited() {
+        return moneyDeposited;
+    }
+
+    public void setMoneyDeposited(BigDecimal moneyDeposited) {
+        this.moneyDeposited = moneyDeposited;
     }
 }
