@@ -4,6 +4,7 @@ import com.bank.bank.Entities.UserEntity;
 import com.bank.bank.Services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -30,15 +31,6 @@ public class UserController {
         return userService.deleteUser(afm);
     }
 
-    @PutMapping("/{afm}/createAccount")
-    public String createAccount(@PathVariable String afm){
-        return userService.createAccount(afm);
-    }
-
-    @PutMapping("/{afm}/deleteAccount")
-    public String deleteAccount(@PathVariable String afm){
-        return userService.deleteAccount(afm);
-    }
 
     @PostMapping("/{afm}/getLoan/{amount}")
     public String getLoan(@PathVariable String afm,@PathVariable BigDecimal amount){
@@ -67,6 +59,11 @@ public class UserController {
     @GetMapping("/{afm}/debt")
     public String getDebt(@PathVariable String afm){
         return userService.getDebt(afm);
+    }
+
+    @GetMapping("/EMPLOYEE/{afm}")
+    public ResponseEntity<byte[]> printPdfByAfm(@PathVariable String afm){
+       return userService.printPdfByAfm(afm);
     }
 
 }

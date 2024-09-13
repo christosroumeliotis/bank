@@ -30,9 +30,6 @@ public class UserEntity {
     @NotNull(message = "User type must not be null")
     @Enumerated(EnumType.STRING)
     private UserType userType;
-    @Column(nullable = false)
-    @NotNull(message = "Has_account must not be null")
-    private boolean has_account;
     @Column(columnDefinition = "DECIMAL(19, 2) DEFAULT 0.00")
     private BigDecimal loanDebt=BigDecimal.ZERO;
     @Column(columnDefinition = "DECIMAL(19, 2) DEFAULT 0.00")
@@ -42,13 +39,12 @@ public class UserEntity {
     public UserEntity() {
     }
 
-    public UserEntity(String afm, String firstName, String lastName, LocalDate birthDate, UserType userType, Boolean has_account) {
+    public UserEntity(String afm, String firstName, String lastName, LocalDate birthDate, UserType userType) {
         this.afm=afm;
         this.firstName = firstName;
         this.lastName = lastName;
         this.birthDate = birthDate;
         this.userType = userType;
-        this.has_account = has_account;
 
     }
 
@@ -61,15 +57,6 @@ public class UserEntity {
 
     public void setAfm(String afm) {
         this.afm = afm;
-    }
-
-    @NotNull(message = "Has_account must not be null")
-    public boolean isHas_account() {
-        return has_account;
-    }
-
-    public void setHas_account(@NotNull(message = "Has_account must not be null") boolean has_account) {
-        this.has_account = has_account;
     }
 
     public @NotBlank @NotNull(message = "Lastname must not be null") String getLastName() {
@@ -104,9 +91,6 @@ public class UserEntity {
         this.userType = userType;
     }
 
-    public @NotNull(message = "Has_account must not be null") Boolean getHas_account() {
-        return has_account;
-    }
 
     public BigDecimal getLoanDebt() {
         return loanDebt;

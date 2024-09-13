@@ -4,10 +4,15 @@ import com.bank.bank.Entities.UserEntity;
 import com.bank.bank.Repositories.UserRepository;
 import com.bank.bank.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -16,6 +21,9 @@ import java.util.Optional;
 public class UserService {
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private PdfGenerationService pdfGenerationService;
+
 
     public String saveUser(UserEntity userEntity) {
         if (userRepository.findByAfm(userEntity.getAfm()).isPresent()) {
@@ -45,37 +53,11 @@ public class UserService {
         }
     }
 
-    @Transactional
-    public String createAccount(String afm) {
-        Optional<UserEntity> user = userRepository.findByAfm(afm);
-        userNotFound(user,afm);
-        if(user.get().getHas_account()){
-            return"User with AFM " + afm + " already has an account";
-        }
-        user.get().setHas_account(true);
-        userRepository.save(user.get());
-        return "User with AFM " + afm + " created an account";
-    }
-
-    public String deleteAccount(String afm) {
-        Optional<UserEntity> user = userRepository.findByAfm(afm);
-        userNotFound(user,afm);
-        if(!user.get().getHas_account()){
-            throw new ResourceNotFoundException("User with AFM " + afm + " already hasn't an account");
-        }
-        user.get().setHas_account(false);
-        userRepository.save(user.get());
-        return "User with AFM " + afm + " closed the account";
-    }
 
     public String getLoan(String afm,BigDecimal amount) {
 
         Optional<UserEntity> user = userRepository.findByAfm(afm);
         userNotFound(user,afm);
-
-        if(!user.get().getHas_account()){
-            return"User with AFM " + afm + " hasn't an account";
-        }
 
         BigDecimal value;
 
@@ -91,10 +73,6 @@ public class UserService {
 
         Optional<UserEntity> user = userRepository.findByAfm(afm);
         userNotFound(user,afm);
-
-        if(!user.get().getHas_account()){
-            return"User with AFM " + afm + " hasn't an account";
-        }
 
         BigDecimal value=user.get().getLoanDebt();
         boolean isEqualInt = value.compareTo(BigDecimal.valueOf(0.0)) == 0;
@@ -114,10 +92,6 @@ public class UserService {
         Optional<UserEntity> user = userRepository.findByAfm(afm);
         userNotFound(user,afm);
 
-        if(!user.get().getHas_account()){
-            return"User with AFM " + afm + " hasn't an account";
-        }
-
         UserEntity user1 = user.get();
         user1.setMoneyDeposited(user1.getMoneyDeposited().add(amount));
         userRepository.save(user.get());
@@ -134,10 +108,6 @@ public class UserService {
         Optional<UserEntity> user = userRepository.findByAfm(afm);
         userNotFound(user,afm);
 
-        if(!user.get().getHas_account()){
-            return"User with AFM " + afm + " hasn't an account";
-        }
-
         UserEntity user1 = user.get();
         if(user1.getMoneyDeposited().compareTo(amount)<0){
             return "You don't have so much money to withdraw";
@@ -151,9 +121,6 @@ public class UserService {
         Optional<UserEntity> user = userRepository.findByAfm(afm);
         userNotFound(user,afm);
 
-        if(!user.get().getHas_account()){
-            return"User with AFM " + afm + " hasn't an account";
-        }
         return "Your savings are: "+user.get().getMoneyDeposited();
     }
 
@@ -161,10 +128,24 @@ public class UserService {
         Optional<UserEntity> user = userRepository.findByAfm(afm);
         userNotFound(user,afm);
 
-        if(!user.get().getHas_account()){
-            return"User with AFM " + afm + " hasn't an account";
-        }
         return"Your debt is: "+user.get().getLoanDebt();
     }
+
+    public ResponseEntity<byte[]> printPdfByAfm(String afm) {
+
+        try {
+            byte[] pdfBytes =pdfGenerationService.createPdfWithDatabaseData(afm);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("attachment", "database-data.pdf");
+            headers.setContentLength(pdfBytes.length);
+
+            return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+        } catch (IOException e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }
 
