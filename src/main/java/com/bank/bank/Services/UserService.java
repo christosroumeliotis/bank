@@ -1,6 +1,10 @@
 package com.bank.bank.Services;
 
+import com.bank.bank.Entities.Customer;
+import com.bank.bank.Entities.Employee;
 import com.bank.bank.Entities.UserEntity;
+import com.bank.bank.Repositories.CustomerRepository;
+import com.bank.bank.Repositories.EmployeeRepository;
 import com.bank.bank.Repositories.UserRepository;
 import com.bank.bank.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,46 +28,71 @@ public class UserService {
     private UserRepository userRepository;
     @Autowired
     private PdfGenerationService pdfGenerationService;
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
+    @Autowired
+    private CustomerRepository customerRepository;
 
 
-    public String saveUser(UserEntity userEntity) {
-        if (userRepository.findByAfm(userEntity.getAfm()).isPresent()) {
+    public String createEmployee(Employee employee) {
+        if (userRepository.findByAfm(employee.getAfm()).isPresent()) {
             // Return message if the user with the same AFM already exists
-            return "User with AFM " + userEntity.getAfm() + " already exists.";
+            return "Employee with AFM " + employee.getAfm() + " already exists.";
         } else {
             // Save the new user and return a success message
-            userRepository.save(userEntity);
-            return "User with AFM " + userEntity.getAfm() + " has been successfully added.";
+            employeeRepository.save(employee);
+            return "Employee with AFM " + employee.getAfm() + " has been successfully added.";
         }
-
     }
 
-    public List<UserEntity> getAllUsers() {
-        return userRepository.findAll();
+    public String createCustomer(Customer customer) {
+        if (userRepository.findByAfm(customer.getAfm()).isPresent()) {
+            // Return message if the user with the same AFM already exists
+            return "Customer with AFM " + customer.getAfm() + " already exists.";
+        } else {
+            // Save the new user and return a success message
+            customerRepository.save(customer);
+            return "Customer with AFM " + customer.getAfm() + " has been successfully added.";
+        }
+    }
+
+    public List<Employee> getAllEmployees() {
+        return employeeRepository.findAll();
+    }
+
+    public List<Customer> getAllCustomers() {
+        return customerRepository.findAll();
     }
 
     @Transactional
-    public String deleteUser(String afm) {
-        if (userRepository.findByAfm(afm).isPresent()) {
-            userRepository.deleteByAfm(afm);
+    public String deleteCustomer(String afm) {
+        if (customerRepository.findByAfm(afm).isPresent()) {
+            customerRepository.deleteByAfm(afm);
+            return "Customer with AFM " + afm + " has been successfully deleted.";
+        } else {
+            throw new ResourceNotFoundException("Customer not found with AFM: " + afm);
+        }
+    }
 
+    @Transactional
+    public String deleteEmployee(String afm) {
+        if (employeeRepository.findByAfm(afm).isPresent()) {
+            employeeRepository.deleteByAfm(afm);
             return "User with AFM " + afm + " has been successfully deleted.";
         } else {
-            throw new ResourceNotFoundException("User not found with AFM: " + afm);
-            //return"User not found with AFM: " + afm;
+            throw new ResourceNotFoundException("Employee not found with AFM: " + afm);
         }
     }
 
 
     public String getLoan(String afm,BigDecimal amount) {
 
-        Optional<UserEntity> user = userRepository.findByAfm(afm);
+        Optional<Customer> user = customerRepository.findByAfm(afm);
         userNotFound(user,afm);
 
         BigDecimal value;
-
         value = user.get().getLoanDebt().add(amount);
-
 
         user.get().setLoanDebt(value);
         userRepository.save(user.get());
@@ -71,7 +101,7 @@ public class UserService {
 
     public String payLoan(String afm, BigDecimal amount) {
 
-        Optional<UserEntity> user = userRepository.findByAfm(afm);
+        Optional<Customer> user = customerRepository.findByAfm(afm);
         userNotFound(user,afm);
 
         BigDecimal value=user.get().getLoanDebt();
@@ -89,10 +119,10 @@ public class UserService {
     }
 
     public String deposit(String afm,BigDecimal amount) {
-        Optional<UserEntity> user = userRepository.findByAfm(afm);
+        Optional<Customer> user = customerRepository.findByAfm(afm);
         userNotFound(user,afm);
 
-        UserEntity user1 = user.get();
+        Customer user1 = user.get();
         user1.setMoneyDeposited(user1.getMoneyDeposited().add(amount));
         userRepository.save(user.get());
         return "Your amount of savings is: " + user1.getMoneyDeposited();
@@ -105,10 +135,10 @@ public class UserService {
     }
 
     public String withdraw(String afm, BigDecimal amount) {
-        Optional<UserEntity> user = userRepository.findByAfm(afm);
+        Optional<Customer> user = customerRepository.findByAfm(afm);
         userNotFound(user,afm);
 
-        UserEntity user1 = user.get();
+        Customer user1 = user.get();
         if(user1.getMoneyDeposited().compareTo(amount)<0){
             return "You don't have so much money to withdraw";
         }
@@ -118,14 +148,14 @@ public class UserService {
     }
 
     public String getSavings(String afm) {
-        Optional<UserEntity> user = userRepository.findByAfm(afm);
+        Optional<Customer> user = customerRepository.findByAfm(afm);
         userNotFound(user,afm);
 
         return "Your savings are: "+user.get().getMoneyDeposited();
     }
 
     public String getDebt(String afm) {
-        Optional<UserEntity> user = userRepository.findByAfm(afm);
+        Optional<Customer> user = customerRepository.findByAfm(afm);
         userNotFound(user,afm);
 
         return"Your debt is: "+user.get().getLoanDebt();

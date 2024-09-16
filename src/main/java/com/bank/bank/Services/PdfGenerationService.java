@@ -1,6 +1,8 @@
 package com.bank.bank.Services;
 
+import com.bank.bank.Entities.Customer;
 import com.bank.bank.Entities.UserEntity;
+import com.bank.bank.Repositories.CustomerRepository;
 import com.bank.bank.Repositories.UserRepository;
 import com.bank.bank.ResourceNotFoundException;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -20,14 +22,16 @@ public class PdfGenerationService {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private CustomerRepository customerRepository;
 
     public byte[] createPdfWithDatabaseData(String afm) throws IOException {
-        Optional<UserEntity> user = userRepository.findByAfm(afm);
+        Optional<Customer> user = customerRepository.findByAfm(afm);
         if(user.isEmpty()){
-            throw new ResourceNotFoundException("User not found with AFM: " + afm);
+            throw new ResourceNotFoundException("Customer not found with AFM: " + afm);
         }
 
-        UserEntity user1 = user.get();
+        Customer user1 = user.get();
         try (PDDocument document = new PDDocument()) {
             PDPage page = new PDPage();
             document.addPage(page);
@@ -55,10 +59,10 @@ public class PdfGenerationService {
 
                 contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);
                 contentStream.beginText();
-                contentStream.newLineAtOffset(325, 700);
-                contentStream.showText("User's type: ");
+                contentStream.newLineAtOffset(225, 700);
+                contentStream.showText("Email: ");
                 contentStream.setFont(PDType1Font.HELVETICA, 12);
-                contentStream.showText(String.valueOf(user1.getUserType()));
+                contentStream.showText(String.valueOf(user1.getEmail()));
                 contentStream.endText();
 
                 contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);
@@ -71,7 +75,7 @@ public class PdfGenerationService {
 
                 contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);
                 contentStream.beginText();
-                contentStream.newLineAtOffset(325, 670);
+                contentStream.newLineAtOffset(225, 670);
                 contentStream.showText("Debt: ");
                 contentStream.setFont(PDType1Font.HELVETICA, 12);
                 contentStream.showText(String.valueOf(user1.getLoanDebt()));
@@ -87,7 +91,7 @@ public class PdfGenerationService {
 
                 contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);
                 contentStream.beginText();
-                contentStream.newLineAtOffset(325, 640);
+                contentStream.newLineAtOffset(225, 640);
                 contentStream.showText("Savings: ");
                 contentStream.setFont(PDType1Font.HELVETICA, 12);
                 contentStream.showText(String.valueOf(user1.getMoneyDeposited()));

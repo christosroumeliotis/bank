@@ -1,6 +1,5 @@
 package com.bank.bank.Entities;
 
-import com.bank.bank.Enums.UserType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -12,7 +11,8 @@ import java.time.LocalDate;
 
 
 @Entity
-public class UserEntity {
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+public abstract class UserEntity {
 
     @Id
     @NotBlank(message = "AFM must not be blank")
@@ -27,25 +27,16 @@ public class UserEntity {
     private String lastName;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthDate;
-    @NotNull(message = "User type must not be null")
-    @Enumerated(EnumType.STRING)
-    private UserType userType;
-    @Column(columnDefinition = "DECIMAL(19, 2) DEFAULT 0.00")
-    private BigDecimal loanDebt=BigDecimal.ZERO;
-    @Column(columnDefinition = "DECIMAL(19, 2) DEFAULT 0.00")
-    private BigDecimal moneyDeposited=BigDecimal.ZERO;
 
 
     public UserEntity() {
     }
 
-    public UserEntity(String afm, String firstName, String lastName, LocalDate birthDate, UserType userType) {
+    public UserEntity(String afm, String firstName, String lastName, LocalDate birthDate) {
         this.afm=afm;
         this.firstName = firstName;
         this.lastName = lastName;
         this.birthDate = birthDate;
-        this.userType = userType;
-
     }
 
     // Getters and setters
@@ -83,16 +74,8 @@ public class UserEntity {
         this.birthDate = birthDate;
     }
 
-    public @NotNull(message = "User type must not be null") UserType getUserType() {
-        return userType;
-    }
 
-    public void setUserType( @NotNull(message = "User type must not be null") UserType userType) {
-        this.userType = userType;
-    }
-
-
-    public BigDecimal getLoanDebt() {
+    /*public BigDecimal getLoanDebt() {
         return loanDebt;
     }
 
@@ -106,5 +89,5 @@ public class UserEntity {
 
     public void setMoneyDeposited(BigDecimal moneyDeposited) {
         this.moneyDeposited = moneyDeposited;
-    }
+    }*/
 }
