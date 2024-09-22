@@ -25,8 +25,8 @@ public class Employee extends UserEntity {
     // Constructors, getters, and setters
     public Employee() {}
 
-    public Employee(String afm, String firstName, String lastName, LocalDate birthDate) {
-        super(afm,firstName,lastName,birthDate);
+    public Employee(String afm, String firstName, String lastName, LocalDate birthDate,String username,String password) {
+        super(afm,firstName,lastName,birthDate,username,password);
     }
 
     public List<Slot> getSlots() {

@@ -25,8 +25,8 @@ public class Customer extends UserEntity {
     // Constructors, getters, and setters
     public Customer() {}
 
-    public Customer(String afm, String firstName, String lastName, LocalDate birthDate,String email) {
-        super(afm,firstName,lastName,birthDate);
+    public Customer(String afm, String firstName, String lastName, LocalDate birthDate,String email,String username,String password) {
+        super(afm,firstName,lastName,birthDate,username,password);
         this.email = email;
     }
 

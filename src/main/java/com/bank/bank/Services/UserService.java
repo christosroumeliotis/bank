@@ -9,11 +9,13 @@ import com.bank.bank.Repositories.EmployeeRepository;
 import com.bank.bank.Repositories.LoanRepository;
 import com.bank.bank.Repositories.UserRepository;
 import com.bank.bank.ResourceNotFoundException;
+import com.bank.bank.Security.SecurityConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +39,8 @@ public class UserService {
 
     @Autowired
     private CustomerRepository customerRepository;
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
 
     public String createEmployee(Employee employee) {
@@ -44,6 +48,19 @@ public class UserService {
             // Return message if the user with the same AFM already exists
             return "Employee with AFM " + employee.getAfm() + " already exists.";
         } else {
+
+            Employee employeeUsername=employeeRepository.findByUsername(employee.getUsername());
+            if(employeeUsername!=null){
+                return"Username already in use, choose different";
+            }
+
+            List<Employee> employees=employeeRepository.findByPassword(employee.getPassword());
+            if(!employees.isEmpty()){
+                return"Password already in use, choose different";
+            }
+
+            employee.setPassword(passwordEncoder.encode(employee.getPassword()));
+            employee.setRole("EMPLOYEE");
             // Save the new user and return a success message
             employeeRepository.save(employee);
             return "Employee with AFM " + employee.getAfm() + " has been successfully added.";
@@ -55,6 +72,18 @@ public class UserService {
             // Return message if the user with the same AFM already exists
             return "Customer with AFM " + customer.getAfm() + " already exists.";
         } else {
+            Customer customerUsername=customerRepository.findByUsername(customer.getUsername());
+            if(customerUsername!=null){
+                return"Username already in use, choose different";
+            }
+
+            List<Customer> customers=customerRepository.findByPassword(customer.getPassword());
+            if(!customers.isEmpty()){
+                return"Password already in use, choose different";
+            }
+
+            customer.setPassword(passwordEncoder.encode(customer.getPassword()));
+            customer.setRole("CUSTOMER");
             // Save the new user and return a success message
             customerRepository.save(customer);
             return "Customer with AFM " + customer.getAfm() + " has been successfully added.";
@@ -171,14 +200,14 @@ public class UserService {
         Optional<Customer> user = customerRepository.findByAfm(afm);
         userNotFound(user,afm);
 
-        return "Your savings are: "+user.get().getMoneyDeposited();
+        return "Customer's savings are: "+user.get().getMoneyDeposited();
     }
 
     public String getDebt(String afm) {
         Optional<Customer> user = customerRepository.findByAfm(afm);
         userNotFound(user,afm);
 
-        return"Your debt is: "+user.get().getLoanDebt();
+        return"Customer's debt is: "+user.get().getLoanDebt();
     }
 
     public ResponseEntity<byte[]> printPdfByAfm(String afm) {

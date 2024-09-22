@@ -4,9 +4,9 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
-
-import java.math.BigDecimal;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import java.time.LocalDate;
 
 
@@ -19,6 +19,12 @@ public abstract class UserEntity {
     @Pattern(regexp = "\\d+", message = "AFM must contain only numbers")
     @Column(name = "afm", unique = true, nullable = false)
     private String afm;
+    @NotBlank(message = "Username must not be blank")
+    @NotNull(message = "Username must not be null")
+    private String username;
+    @NotBlank(message = "Password must not be blank")
+    @NotNull(message = "Password must not be null")
+    private String password;
     @NotBlank(message = "Firstname must not be blank")
     @NotNull(message = "Firstname must not be null")
     private String firstName;
@@ -27,16 +33,19 @@ public abstract class UserEntity {
     private String lastName;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthDate;
+    private String role;
 
 
     public UserEntity() {
     }
 
-    public UserEntity(String afm, String firstName, String lastName, LocalDate birthDate) {
+    public UserEntity(String afm, String firstName, String lastName, LocalDate birthDate,String username,String password) {
         this.afm=afm;
         this.firstName = firstName;
         this.lastName = lastName;
         this.birthDate = birthDate;
+        this.username=username;
+        this.password= password;
     }
 
     // Getters and setters
@@ -74,20 +83,27 @@ public abstract class UserEntity {
         this.birthDate = birthDate;
     }
 
-
-    /*public BigDecimal getLoanDebt() {
-        return loanDebt;
+    public @NotBlank(message = "Username must not be blank") @NotNull(message = "Username must not be null") String getUsername() {
+        return username;
     }
 
-    public void setLoanDebt(BigDecimal loanDebt) {
-        this.loanDebt = loanDebt;
+    public void setUsername(@NotBlank(message = "Username must not be blank") @NotNull(message = "Username must not be null") String username) {
+        this.username = username;
     }
 
-    public BigDecimal getMoneyDeposited() {
-        return moneyDeposited;
+    public @NotBlank(message = "Lastname must not be blank") @NotNull(message = "Lastname must not be null") String getPassword() {
+        return password;
     }
 
-    public void setMoneyDeposited(BigDecimal moneyDeposited) {
-        this.moneyDeposited = moneyDeposited;
-    }*/
+    public void setPassword(@NotBlank(message = "Lastname must not be blank") @NotNull(message = "Lastname must not be null") String password) {
+        this.password = password;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
 }
