@@ -1,7 +1,6 @@
 package com.bank.bank.Entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -20,6 +19,8 @@ public class Customer extends UserEntity {
     private BigDecimal loanDebt=BigDecimal.ZERO;
     @Column(columnDefinition = "DECIMAL(19, 2) DEFAULT 0.00")
     private BigDecimal moneyDeposited=BigDecimal.ZERO;
+    @OneToOne(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Loan loan;
 
     // Constructors, getters, and setters
     public Customer() {}
@@ -27,6 +28,14 @@ public class Customer extends UserEntity {
     public Customer(String afm, String firstName, String lastName, LocalDate birthDate,String email) {
         super(afm,firstName,lastName,birthDate);
         this.email = email;
+    }
+
+    public Loan getLoan() {
+        return loan;
+    }
+
+    public void setLoan(Loan loan) {
+        this.loan = loan;
     }
 
     public String getEmail() {

@@ -2,9 +2,11 @@ package com.bank.bank.Services;
 
 import com.bank.bank.Entities.Customer;
 import com.bank.bank.Entities.Employee;
+import com.bank.bank.Entities.Loan;
 import com.bank.bank.Entities.UserEntity;
 import com.bank.bank.Repositories.CustomerRepository;
 import com.bank.bank.Repositories.EmployeeRepository;
+import com.bank.bank.Repositories.LoanRepository;
 import com.bank.bank.Repositories.UserRepository;
 import com.bank.bank.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,8 @@ public class UserService {
     private PdfGenerationService pdfGenerationService;
     @Autowired
     private EmployeeRepository employeeRepository;
+    @Autowired
+    private LoanRepository loanRepository;
 
     @Autowired
     private CustomerRepository customerRepository;
@@ -91,12 +95,21 @@ public class UserService {
         Optional<Customer> user = customerRepository.findByAfm(afm);
         userNotFound(user,afm);
 
+        if(user.get().getLoan()!=null){
+            return "Customer with AFM: "+user.get().getAfm()+" already has a Loan and can't take second before pay his debt";
+        }
+
+        Loan loan = new Loan(amount,user.get());
+        loanRepository.save(loan);
+        user.get().setLoan(loan);
+
         BigDecimal value;
         value = user.get().getLoanDebt().add(amount);
 
         user.get().setLoanDebt(value);
         userRepository.save(user.get());
-        return "Loan of user with AFM: " + afm + " is " + value;
+        return "Customer with AFM: "+user.get().getAfm()+" took a Loan of amount: "+loan.getAmount();
+
     }
 
     public String payLoan(String afm, BigDecimal amount) {
@@ -112,8 +125,15 @@ public class UserService {
         }else if (value.compareTo(amount) < 0){
             return "The debt is less than the amount you entered.";
         }else{
+
             user.get().setLoanDebt(value.subtract(amount));
             userRepository.save(user.get());
+            if(user.get().getLoanDebt().compareTo(BigDecimal.valueOf(0.0)) == 0){
+                loanRepository.delete(user.get().getLoan());
+                user.get().setLoan(null);
+                userRepository.save(user.get());
+            }
+
             return "The amount of your debt is " +user.get().getLoanDebt();
         }
     }
