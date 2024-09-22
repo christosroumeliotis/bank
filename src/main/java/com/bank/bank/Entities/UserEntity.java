@@ -1,24 +1,30 @@
 package com.bank.bank.Entities;
 
-import com.bank.bank.Enums.UserType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
-
-import java.math.BigDecimal;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import java.time.LocalDate;
 
 
 @Entity
-public class UserEntity {
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+public abstract class UserEntity {
 
     @Id
     @NotBlank(message = "AFM must not be blank")
     @Pattern(regexp = "\\d+", message = "AFM must contain only numbers")
     @Column(name = "afm", unique = true, nullable = false)
     private String afm;
+    @NotBlank(message = "Username must not be blank")
+    @NotNull(message = "Username must not be null")
+    private String username;
+    @NotBlank(message = "Password must not be blank")
+    @NotNull(message = "Password must not be null")
+    private String password;
     @NotBlank(message = "Firstname must not be blank")
     @NotNull(message = "Firstname must not be null")
     private String firstName;
@@ -27,29 +33,19 @@ public class UserEntity {
     private String lastName;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthDate;
-    @NotNull(message = "User type must not be null")
-    @Enumerated(EnumType.STRING)
-    private UserType userType;
-    @Column(nullable = false)
-    @NotNull(message = "Has_account must not be null")
-    private boolean has_account;
-    @Column(columnDefinition = "DECIMAL(19, 2) DEFAULT 0.00")
-    private BigDecimal loanDebt=BigDecimal.ZERO;
-    @Column(columnDefinition = "DECIMAL(19, 2) DEFAULT 0.00")
-    private BigDecimal moneyDeposited=BigDecimal.ZERO;
+    private String role;
 
 
     public UserEntity() {
     }
 
-    public UserEntity(String afm, String firstName, String lastName, LocalDate birthDate, UserType userType, Boolean has_account) {
+    public UserEntity(String afm, String firstName, String lastName, LocalDate birthDate,String username,String password) {
         this.afm=afm;
         this.firstName = firstName;
         this.lastName = lastName;
         this.birthDate = birthDate;
-        this.userType = userType;
-        this.has_account = has_account;
-
+        this.username=username;
+        this.password= password;
     }
 
     // Getters and setters
@@ -61,15 +57,6 @@ public class UserEntity {
 
     public void setAfm(String afm) {
         this.afm = afm;
-    }
-
-    @NotNull(message = "Has_account must not be null")
-    public boolean isHas_account() {
-        return has_account;
-    }
-
-    public void setHas_account(@NotNull(message = "Has_account must not be null") boolean has_account) {
-        this.has_account = has_account;
     }
 
     public @NotBlank @NotNull(message = "Lastname must not be null") String getLastName() {
@@ -96,31 +83,27 @@ public class UserEntity {
         this.birthDate = birthDate;
     }
 
-    public @NotNull(message = "User type must not be null") UserType getUserType() {
-        return userType;
+    public @NotBlank(message = "Username must not be blank") @NotNull(message = "Username must not be null") String getUsername() {
+        return username;
     }
 
-    public void setUserType( @NotNull(message = "User type must not be null") UserType userType) {
-        this.userType = userType;
+    public void setUsername(@NotBlank(message = "Username must not be blank") @NotNull(message = "Username must not be null") String username) {
+        this.username = username;
     }
 
-    public @NotNull(message = "Has_account must not be null") Boolean getHas_account() {
-        return has_account;
+    public @NotBlank(message = "Lastname must not be blank") @NotNull(message = "Lastname must not be null") String getPassword() {
+        return password;
     }
 
-    public BigDecimal getLoanDebt() {
-        return loanDebt;
+    public void setPassword(@NotBlank(message = "Lastname must not be blank") @NotNull(message = "Lastname must not be null") String password) {
+        this.password = password;
     }
 
-    public void setLoanDebt(BigDecimal loanDebt) {
-        this.loanDebt = loanDebt;
+    public String getRole() {
+        return role;
     }
 
-    public BigDecimal getMoneyDeposited() {
-        return moneyDeposited;
-    }
-
-    public void setMoneyDeposited(BigDecimal moneyDeposited) {
-        this.moneyDeposited = moneyDeposited;
+    public void setRole(String role) {
+        this.role = role;
     }
 }
